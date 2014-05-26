@@ -32,6 +32,7 @@ message(${ROOT_LIBRARIES})
 add_executable(goat
    src/GoAT.cc 
    src/GSort.cc
+   src/GBakerCalibration.cc
    src/GParticleReconstruction.cc
    src/GDataChecks.cc
    src/GoATTreeManager.cc
