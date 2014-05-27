@@ -213,28 +213,6 @@ Bool_t	GBakerCalibration::PostInit()
 
 void	GBakerCalibration::Reconstruct()
 {
-	InitEvent();
-	CheckNeutrality();
-    
-	/**
-	 * @todo Do TOF here!
-	 * @todo Do Neutron ID here! (TOF + Cluster size)
-	 **/
-	
-	PhotonReconstruction();	
-	
-	if(ReconstructChargedParticles == 1) 	ChargedReconstruction();
-	if(ReconstructMesons == 1)	 			MesonReconstruction();
-
-	for (int i = 0; i < GetNParticles(); i++) 
-	{
-		// Finally add particles which were temporarily identified
-		if (Identified[i] == pdg_chpion) 	AddParticle(pdg_chpion,i);
-		if (Identified[i] == pdg_electron) 	AddParticle(pdg_electron,i);
-		if (Identified[i] == pdg_photon) 	AddParticle(pdg_photon,i);
-		if (Identified[i] == pdg_rootino) 	AddParticle(pdg_rootino,i);
-
-	}
 }
 
 void	GBakerCalibration::InitEvent()
@@ -281,265 +259,6 @@ void 	GBakerCalibration::CheckNeutrality()
 			}
 		}			
 	}
-}
-
-void	GBakerCalibration::PhotonReconstruction()
-{
-	// Mark neutral rootinos as photons (for now)
-	// Note if neutron ID is done before this, they are left as neutrons
-	
-	for (int i = 0; i < GetNParticles(); i++) 
-	{
-		if ((Identified[i] == pdg_rootino) && (Charge[i] == 0))
-		{			
-			Identified[i] = pdg_photon;
-		}
-	}
-}
-
-void	GBakerCalibration::ChargedReconstruction()
-{
-	
-	for (int i = 0; i < GetNParticles(); i++) 
-	{
-		if (GetTheta(i) < charged_theta_min) continue; // user rejected theta region
-		if (GetTheta(i) > charged_theta_max) continue; // user rejected theta region
-		
-		if (GetApparatus(i) == EAppCB) 
-		{	
-			if(Cut_CB_proton_active)
-			{
-				Cut_proton = Cut_CB_proton;
-				Cut_proton_active = 1;
-			}
-			else Cut_proton_active = 0;
-			if(Cut_CB_pion_active)
-			{
-				Cut_pion = Cut_CB_pion;
-				Cut_pion_active = 1;
-			}
-			else Cut_pion_active = 0;
-			if(Cut_CB_electron_active)
-			{
-				Cut_electron = Cut_CB_electron;
-				Cut_electron_active = 1;
-			}
-			else Cut_electron_active = 0;
-		}
-		else if (GetApparatus(i) == EAppTAPS)
-		{
-			if(Cut_TAPS_proton_active)
-			{
-				Cut_proton = Cut_TAPS_proton;
-				Cut_proton_active = 1;
-			}
-			else Cut_proton_active = 0;
-			if(Cut_TAPS_pion_active)
-			{
-				Cut_pion = Cut_TAPS_pion;
-				Cut_pion_active = 1;
-			}
-			else Cut_pion_active = 0;
-			if(Cut_TAPS_electron_active)
-			{
-				Cut_electron = Cut_TAPS_electron;
-				Cut_electron_active = 1;
-			}
-			else Cut_electron_active = 0;	
-
-		}
-		if(Cut_proton_active) 
-		{
-			if(Cut_proton->IsInside(GetEk(i),Get_dE(i)))
-			{
-				SetInputMass(i,m_proton);	
-				AddParticle(pdg_proton,i);
-
-			}
-		}
-		
-		if(Cut_pion_active) 
-		{		
-			if(Cut_pion->IsInside(GetEk(i),Get_dE(i)))
-			{
-				SetInputMass(i,m_chpion);			
-				Identified[i] = pdg_chpion; 
-			}
-		}
-		
-		if(Cut_electron_active) 
-		{		
-			if(Cut_electron->IsInside(GetEk(i),Get_dE(i)))
-			{
-				SetInputMass(i,m_electron);			
-				Identified[i] = pdg_electron;
-			}
-		}	
-				
-	}			
-				
-}
-
-void	GBakerCalibration::MesonReconstruction()
-{
-	Int_t		index1	  [GetNParticles() * (GetNParticles() -1)];
-	Int_t		index2	  [GetNParticles() * (GetNParticles() -1)];	
-	Int_t 		tempID    [GetNParticles() * (GetNParticles() -1)];
-	Double_t 	diff_meson[GetNParticles() * (GetNParticles() -1)];
-	Int_t 		sort_index[GetNParticles() * (GetNParticles() -1)];
-	Bool_t 		is_meson  [GetNParticles()];
-	
-	Int_t 		ndaughter = 0;
-	Int_t		daughter_list[GetNParticles()];
-
-	TLorentzVector	initialParticle[GetNParticles()];
-	TLorentzVector	reaction_p4;	
-		
-	for (int i = 0; i < GetNParticles(); i++) 
-	{
-		if (GetTheta(i) < meson_theta_min) continue; // user rejected theta region
-		if (GetTheta(i) > meson_theta_max) continue; // user rejected theta region
-		
-		initialParticle[i] = GetVector(i);
-
-		is_meson[i] = kFALSE;
-		
-		// Construct reaction four-vector ignoring protons and neutrons
-		if ((Identified[i] != pdg_proton) &&  (Identified[i] != pdg_neutron))
-		{
-			reaction_p4 += initialParticle[i];
-			daughter_list[ndaughter] = i;
-			ndaughter++;
-		}
-	}
-	 
-	// LEVEL 1:   
-	// Test full reaction 4 momentum (ignoring protons and neutrons)
-	// This is to test the following complex decays
-	// n' -> pi+  pi-  n      
-	// n' -> pi0  pi0  n
-	// n  -> pi0  pi0  pi0    
-	// n  -> pi0  pi+  pi- 
-	// n  -> pi0 (pi+  pi-  g)  - omega meson intermediate state
-	// n  -> pi+  pi-  g		- direct n decay 
-	// 							    (or rho_0 intermediate state)
-
-	Double_t diff_pi0  = TMath::Abs( reaction_p4.M() - m_pi0 )/width_pi0;	
-	Double_t diff_eta  = TMath::Abs( reaction_p4.M() - m_eta )/width_eta;
-	Double_t diff_etaP = TMath::Abs( reaction_p4.M() - m_etaP)/width_etaP;
-
-	if ((diff_pi0 <= 1.0) && (diff_pi0 < diff_eta) && (diff_eta < diff_etaP))
-	{
-		AddParticle(pdg_pi0,ndaughter,daughter_list);
-		return;		
-	}
-			
-	if ((diff_eta <= 1.0) && (diff_eta < diff_pi0) && (diff_eta < diff_etaP))
-	{
-		AddParticle(pdg_eta,ndaughter,daughter_list);
-		return;		
-	}
-	
-	if ((diff_etaP <= 1.0) && (diff_etaP < diff_pi0) && (diff_etaP < diff_eta))
-	{
-		AddParticle(pdg_etaP,ndaughter,daughter_list);
-		return;
-	}				
-	
-	// LEVEL 2:
-	// Well that didn't work, let's try to make some 2 particle checks	
-	// Loop over possible 2-particle combinations (skip i=j, ij = ji)
-	// to check pi0 -> 2g, n -> 2g , n' -> 2g
-	// Find all pairs within IM limits and sort by best Chi
-	// Don't double count in sorting!
-	// Reset daughter list
-	ndaughter = 0;
-	Int_t k = 0;
-	for (int i = 0; i < GetNParticles(); i++) 
-    {
-		if (GetTheta(i) < meson_theta_min) continue; // user rejected theta region
-		if (GetTheta(i) > meson_theta_max) continue; // user rejected theta region
-		
-		if (Identified[i] == pdg_proton) 	continue;
-		if (Identified[i] == pdg_neutron) 	continue;
-		
-		for (int j = i+1; j < GetNParticles(); j++) 
-		{
-			if (GetTheta(j) < meson_theta_min) continue; // user rejected theta region
-			if (GetTheta(j) > meson_theta_max) continue; // user rejected theta region
-			
-			if (Identified[j] == pdg_proton) 	continue;
-			if (Identified[j] == pdg_neutron) 	continue;
-			
-			TLorentzVector p4 = initialParticle[i] + initialParticle[j];
-			
-			Double_t diff_pi0  = TMath::Abs( p4.M() - m_pi0 )/width_pi0;
-			Double_t diff_eta  = TMath::Abs( p4.M() - m_eta )/width_eta;
-			Double_t diff_etaP = TMath::Abs( p4.M() - m_etaP)/width_etaP;
-			
-			if ((diff_pi0 <= 1.0) && (diff_pi0 < diff_eta) && (diff_pi0 < diff_etaP)) 
-			{
-				diff_meson[k] 	= diff_pi0; 
-				tempID[k] 		= pdg_pi0;
-				index1[k]		= i;
-				index2[k]		= j;
-				k++;
-			}
-			if ((diff_eta <= 1.0) && (diff_eta < diff_pi0) && (diff_eta < diff_etaP)) 
-			{
-				diff_meson[k]	= diff_eta; 
-				tempID[k] 		= pdg_eta;
-				index1[k]		= i;
-				index2[k]		= j;				
-				k++;
-			}
-			if ((diff_etaP <= 1.0) && (diff_etaP < diff_pi0) && (diff_etaP < diff_eta)) 
-			{
-				diff_meson[k]	= diff_etaP; 
-				tempID[k] 		= pdg_etaP;
-				index1[k]		= i;
-				index2[k]		= j;				
-				k++;
-			}			
-		}
-	}
-  
-	TMath::Sort(k, diff_meson, sort_index, kFALSE);
-	
-	for (Int_t i = 0; i < k; i++)
-	{
-		//particle pair already involved in a meson reconstruction?
-		if( is_meson[index1[i]] == kTRUE)  continue;
-		if( is_meson[index2[i]] == kTRUE)  continue;		
-		
-		// New meson identified!
-		is_meson[index1[i]] = kTRUE;
-		is_meson[index2[i]] = kTRUE;
-		
-		if( tempID[i] == pdg_pi0) 
-		{
-			ndaughter = 2;
-			daughter_list[0] = index1[i];
-			daughter_list[1] = index2[i];
-			AddParticle(pdg_pi0,ndaughter,daughter_list);
-		}			
-		if( tempID[i] == pdg_eta) 	
-		{
-			ndaughter = 2;
-			daughter_list[0] = index1[i];
-			daughter_list[1] = index2[i];
-			AddParticle(pdg_eta,ndaughter,daughter_list);
-		}
-		if( tempID[i] == pdg_etaP) 			
-		{
-			ndaughter = 2;
-			daughter_list[0] = index1[i];
-			daughter_list[1] = index2[i];
-			AddParticle(pdg_etaP,ndaughter,daughter_list);
-		}
-		
-	}
-		
 }
 
 void	GBakerCalibration::AddParticle(Int_t pdg_code, Int_t nindex, Int_t index_list[])
@@ -660,16 +379,10 @@ void	GBakerCalibration::AddParticle(Int_t pdg_code, Int_t nindex, Int_t index_li
 	
 }
 
-/**
- * @brief Load a cut from a ROOT file
- * @param filename The ROOT file to open
- * @param cutname The name of the TCutG object to load
- * @return Pointer to the cut
- * @throw bool false on any error
- */
-TCutG*	GBakerCalibration::OpenCutFile(Char_t* filename, Char_t* cutname)
+
+TCutG*  GBakerCalibration::OpenCutFile(Char_t* filename, Char_t* cutname)
 {
-	CutFile 	= new TFile(filename, "READ");
+        CutFile         = new TFile(filename, "READ");
 
     if( !CutFile || !CutFile->IsOpen() ) {
         cerr << "Can't open cut file: " << filename << endl;
@@ -681,17 +394,16 @@ TCutG*	GBakerCalibration::OpenCutFile(Char_t* filename, Char_t* cutname)
     // GetObject checks the type to be TCutG,
     // see http://root.cern.ch/root/html534/TDirectory.html#TDirectory:GetObject
     CutFile->GetObject(cutname, Cut);
-
+    
     if( !Cut ) {
-        cerr << "Could not find a TCutG with the name " << cutname << " in " << filename << endl;
-        throw false;
-    }
-	
-	TCutG* Cut_clone = Cut;
-	CutFile->Close();
-
-	cout << "cut file " << filename << 
-						" opened (Cut-name = " << cutname << ")"<< endl;
-	return Cut_clone;
-	
-}
+    	cerr << "Could not find a TCutG with the name " << cutname << " in " << filename << endl;
+    	throw false;
+    	}
+    
+    TCutG* Cut_clone = Cut;
+    CutFile->Close();
+    
+    cout << "cut file " << filename << " opened (Cut-name = " << cutname << ")"<< endl;                             return Cut_clone;
+    
+                                                                                                                         }
+    
