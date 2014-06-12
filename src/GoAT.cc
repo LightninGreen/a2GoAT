@@ -317,7 +317,7 @@ Bool_t	GoAT::Init(const char* configfile)
 	cout << "==========================================================" << endl;		
 	cout << "Setting up analysis classes:" << endl;	
 	cout << "==========================================================" << endl;	
-    config = ReadConfig("DO-PARTICLE-RECONSTRUCTION");
+    config = ReadConfig("DO-CALIBRATION");
 
     {
         int buffer=0;
@@ -327,9 +327,9 @@ Bool_t	GoAT::Init(const char* configfile)
 
 	if(UseParticleReconstruction) 
 	{
-		if(!GParticleReconstruction::PostInit())
+		if(!GBakerCalibration::PostInit())
 		{
-			cout << "GParticleReconstruction Init failed!" << endl; 
+			cout << "GBakerCalibration Init failed!" << endl; 
 			return kFALSE;
 		}
 	}			
@@ -393,7 +393,7 @@ void	GoAT::Reconstruct()
 
 	if(SortAnalyseEvent())
 	{
-		if(UseParticleReconstruction) GParticleReconstruction::Reconstruct();
+		if(UseParticleReconstruction) GBakerCalibration::Reconstruct();
 		
 		if(SortFillEvent()) {FillEvent(); nEvents_written++;}
 	}
