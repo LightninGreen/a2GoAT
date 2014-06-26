@@ -364,7 +364,7 @@ Bool_t	GoAT::File(const char* file_in, const char* file_out)
 	cout << "Opening particle reconstruction tree: ";	
 	InitTreeParticles();
 	cout << endl;
-	
+
 	Analyse();
 	
 	// Close the Acqu file before leaving.
@@ -378,6 +378,8 @@ void	GoAT::Analyse()
 	cout << "Analysing ..." << endl;
 	TraverseAcquEntries();	
 	
+	GBakerCalibration::WriteHistograms();
+
 	CloseOutputFile();
 	cout << endl << "File complete. " << "Total Events Accepted: " << nEvents_written << endl;
 	cout << "==========================================================" << endl << endl;	

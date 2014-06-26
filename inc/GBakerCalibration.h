@@ -7,7 +7,9 @@
 class	GBakerCalibration : public GDataChecks
 {
 private:
-	Double_t Pi0_IM;
+	Int_t NCluster;
+	TH2* GBakerCalibHist_CB_IM;
+
    	
 protected:
 	    
@@ -19,6 +21,9 @@ public:
 	virtual void Reconstruct();
 
 	Bool_t PostInit();
+
+	void   DefineHistograms();
+	Bool_t WriteHistograms();
 
 };
 
