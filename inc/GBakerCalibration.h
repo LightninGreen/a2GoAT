@@ -7,9 +7,10 @@
 class	GBakerCalibration : public GDataChecks
 {
 private:
-	Int_t NCluster;
+	Int_t NParticle;
 	TH2* GBakerCalibHist_CB_IM;
-
+	TH2* GBakerCalibHist_CB_IM_2Neut;
+	TLorentzVector p4Gamma1, p4Gamma2;
    	
 protected:
 	    
