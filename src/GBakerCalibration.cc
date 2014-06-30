@@ -19,6 +19,8 @@ void	GBakerCalibration::Reconstruct()
 {
 	//CB Energy Calibration
 	
+	LabelCharged();
+	
 	//Loop over CB hits
 	for(Int_t i = 0; i < GetNParticles(); i++)
 	{	
@@ -36,14 +38,14 @@ void	GBakerCalibration::Reconstruct()
 				GBakerCalibHist_CB_IM->Fill(im, GetCentralCrys(j));
 				
 				//Fill histogram for neutral hits
-				if(GetWC0_E(i) == 0 && GetWC1_E(i) == 0 && GetWC0_E(j) == 0 && GetWC1_E(j) == 0)
+				if(charge[i] == 0 && charge[j] == 0)
 				{
 					GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(i));
 					GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(j));
 				}
 				
 				//Fill histogram for 2 neutral hits
-				if(GetNParticles() == 2 && GetWC0_E(i) == 0 && GetWC1_E(i) == 0 && GetWC0_E(j) == 0 && GetWC1_E(j) == 0)
+				if(GetNParticles() == 2 && charge[i] == 0 && charge[j] == 0)
 				{
 					GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(i));
 					GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(j));
@@ -52,7 +54,48 @@ void	GBakerCalibration::Reconstruct()
 			}
 		}	
 	}
+
+	delete [] charge;	
+
 }	
+
+void   GBakerCalibration::LabelCharged()
+{
+	nCharged = 0;
+	nNeutral = 0;
+	charge = new Int_t[GetNParticles()];
+	
+	for(Int_t n = 0; n < GetNParticles(); n++)
+	{
+		charge[n] = 0;
+		if(GetApparatus(n) == EAppCB)
+		{
+			if((GetWC0_E(n) > 0.0) || (GetWC1_E(n) > 0.0))
+			{
+				charge[n] = 1;
+			}
+			if((Get_dE(n) > 0.0) && (Get_dE(n) < 1000.0))
+			{
+				charge[n] = 1;
+			}
+		}
+		if(GetApparatus(n) == EAppTAPS)
+		{
+			if((Get_dE(n) > 0.0) && (Get_dE(n) < 1000.0))
+			{
+				charge[n] = 1;
+			}
+		}
+		if(charge[n] == 0)
+		{
+			nNeutral++;
+		}
+		if(charge[n] == 1)
+		{
+			nCharged++;
+		}	
+	}	
+}
 	
 void   GBakerCalibration::DefineHistograms()
 {
