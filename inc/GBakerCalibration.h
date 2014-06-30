@@ -30,6 +30,7 @@ public:
 	Bool_t PostInit();
 
 	void   LabelCharged();
+	void   EventCleanup();
 	void   DefineHistograms();
 	Bool_t WriteHistograms();
 

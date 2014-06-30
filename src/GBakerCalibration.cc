@@ -51,11 +51,18 @@ void	GBakerCalibration::Reconstruct()
 					GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(j));
 				
 				}
+				
+				//Fill histogram for 2 neutral hits and 1 charged hit
+				if(GetNParticles() == 3 && nCharged == 1 && nNeutral ==2 && charge[i] == 0 && charge[j] == 0)
+				{
+					GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(i));
+					GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(j));
+				}
 			}
 		}	
 	}
 
-	delete [] charge;	
+	EventCleanup();
 
 }	
 
@@ -95,6 +102,13 @@ void   GBakerCalibration::LabelCharged()
 			nCharged++;
 		}	
 	}	
+}
+	
+void   GBakerCalibration::EventCleanup()
+{
+		
+		delete [] charge;
+		
 }
 	
 void   GBakerCalibration::DefineHistograms()
