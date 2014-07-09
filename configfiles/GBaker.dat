@@ -28,6 +28,7 @@ Cut-IM-Width-Pi0: 20
 Cut-IM-Width-Eta: 44
 Cut-IM-Width-Eta-Prime: 60
 
+CheckCBStabilitiy = 1
 
 #-----------------------------------------------------------------------
 # Sorting Preferences
