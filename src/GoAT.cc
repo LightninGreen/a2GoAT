@@ -375,6 +375,9 @@ Bool_t	GoAT::File(const char* file_in, const char* file_out)
 
 void	GoAT::Analyse()
 {
+
+	GBakerCalibration::DefineHistograms();
+
 	cout << "Analysing ..." << endl;
 	TraverseAcquEntries();	
 	

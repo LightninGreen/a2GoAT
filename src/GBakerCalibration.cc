@@ -10,7 +10,7 @@ GBakerCalibration::~GBakerCalibration()
 
 Bool_t GBakerCalibration::PostInit()
 {
-DefineHistograms();
+//DefineHistograms();
 return kTRUE;
 }
 
