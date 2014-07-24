@@ -9,6 +9,10 @@ class	GBakerCalibration : public GDataChecks
 private:
 
 	Double_t im;
+	
+	Double_t time_i;
+	Double_t time_j;
+	
 	Int_t* charge;
 	Int_t nCharged;
 	Int_t nNeutral;
@@ -17,6 +21,9 @@ private:
 	TH2* GBakerCalibHist_CB_IM_Neut;
 	TH2* GBakerCalibHist_CB_IM_2Neut;
 	TH2* GBakerCalibHist_CB_IM_2Neut_1Char;
+
+    TH2* GBakerCalibHist_CB_Time;
+    TH2* GBakerCalibHist_CB_Time_Neut;
    	
 protected:
 	    
@@ -30,6 +37,7 @@ public:
 	Bool_t PostInit();
 
 	void   LabelCharged();
+	void   EventStartup();
 	void   EventCleanup();
 	void   DefineHistograms();
 	Bool_t WriteHistograms();

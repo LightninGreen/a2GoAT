@@ -31,11 +31,17 @@ message(${ROOT_LIBRARIES})
 
 add_executable(Calibgoat
    src/GoAT.cc 
+   inc/GoAT.h
    src/GSort.cc
+   inc/GSort.h
    src/GBakerCalibration.cc
+   inc/GBakerCalibration.h
    src/GDataChecks.cc
+   inc/GDataChecks.h
    src/GoATTreeManager.cc
+   inc/GoATTreeManager.h
    src/GAcquTreeManager.cc
+   inc/GAcquTreeManager.h
    )
 target_link_libraries(Calibgoat ${ROOT_LIBRARIES})
 

@@ -10,16 +10,17 @@ GBakerCalibration::~GBakerCalibration()
 
 Bool_t GBakerCalibration::PostInit()
 {
-//DefineHistograms();
+//DefineHistograms(); (Currently called within GoAT.cc)
 return kTRUE;
 }
 
 
 void	GBakerCalibration::Reconstruct()
 {
-	//CB Energy Calibration
 	
-	LabelCharged();
+	EventStartup();
+	
+	//CB Energy Calibration
 	
 	//Loop over CB hits
 	for(Int_t i = 0; i < GetNParticles(); i++)
@@ -62,12 +63,35 @@ void	GBakerCalibration::Reconstruct()
 		}	
 	}
 
+	//CB Time Calibration
+	
+	for(Int_t i = 0; i < GetNParticles(); i++)
+	{
+        time_i = GetTime(i);
+        for(Int_t j = 0; j < GetNParticles(); j++)
+        {
+            time_j = GetTime(j);
+            if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
+            {
+				GBakerCalibHist_CB_Time->Fill(time_i - time_j, GetCentralCrys(i));
+				GBakerCalibHist_CB_Time->Fill(time_j - time_i, GetCentralCrys(j));
+				if(charge[i] == 0 && charge[j] == 0)
+				{
+					GBakerCalibHist_CB_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
+					GBakerCalibHist_CB_Time_Neut->Fill(time_j - time_i, GetCentralCrys(j));
+				}
+			}
+        }
+	}
+
 	EventCleanup();
 
 }	
 
 void   GBakerCalibration::LabelCharged()
 {
+	//This function labels the charge for each particle in an event,
+	//As well as counting the total number of neutral hits and charged hits
 	nCharged = 0;
 	nNeutral = 0;
 	charge = new Int_t[GetNParticles()];
@@ -104,6 +128,13 @@ void   GBakerCalibration::LabelCharged()
 	}	
 }
 	
+void   GBakerCalibration::EventStartup()
+{
+		
+		LabelCharged();
+		
+}
+	
 void   GBakerCalibration::EventCleanup()
 {
 		
@@ -118,34 +149,33 @@ void   GBakerCalibration::DefineHistograms()
 
 	gROOT->cd();
 
+	//CB Energy Calibration
+
 	GBakerCalibHist_CB_IM = new TH2F("GBakerCalibHist_CB_IM", "GBakerCalib CB Energy IM", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_Neut = new TH2F("GBakerCalibHist_CB_IM_Neut", "GBakerCalib CB Energy IM Neutral", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut = new TH2F("GBakerCalibHist_CB_IM_2Neut", "GBakerCalib CB Energy IM 2 Neutral", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut_1Char = new TH2F("GBakerCalibHist_CB_IM_2Neut_1Char", "GBakerCalib CB Energy IM 2 Neutral + 1 Charged", 1000, 0, 1000, 720, 0, 720);
 
-	TAxis* xax0 = GBakerCalibHist_CB_IM->GetXaxis();
-	xax0->SetTitle("Invariant Mass (MeV)");
-	TAxis* yax0 = GBakerCalibHist_CB_IM->GetYaxis();
-	yax0->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM->GetXaxis()->SetTitle("Invariant Mass (MeV)");
+	GBakerCalibHist_CB_IM->GetYaxis()->SetTitle("CB Crystal Number");
 	GBakerCalibHist_CB_IM->SetStats(kFALSE);
-
-	TAxis* xax1 = GBakerCalibHist_CB_IM_Neut->GetXaxis();
-	xax1->SetTitle("Invariant Mass (MeV)");
-	TAxis* yax1 = GBakerCalibHist_CB_IM_Neut->GetYaxis();
-	yax1->SetTitle("CB Crystal Number");
+	
+	GBakerCalibHist_CB_IM_Neut->GetXaxis()->SetTitle("Invariant Mass (MeV)");
+	GBakerCalibHist_CB_IM_Neut->GetYaxis()->SetTitle("CB Crystal Number");
 	GBakerCalibHist_CB_IM_Neut->SetStats(kFALSE);
 
-	TAxis* xax2 = GBakerCalibHist_CB_IM_2Neut->GetXaxis();
-	xax2->SetTitle("Invariant Mass (MeV)");
-	TAxis* yax2 = GBakerCalibHist_CB_IM_2Neut->GetYaxis();
-	yax2->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM_2Neut->GetXaxis()->SetTitle("Invariant Mass (MeV)");
+	GBakerCalibHist_CB_IM_2Neut->GetYaxis()->SetTitle("CB Crystal Number");
 	GBakerCalibHist_CB_IM_2Neut->SetStats(kFALSE);
-	
-	TAxis* xax3 = GBakerCalibHist_CB_IM_2Neut_1Char->GetXaxis();
-	xax3->SetTitle("Invariant Mass (MeV)");
-	TAxis* yax3 = GBakerCalibHist_CB_IM_2Neut_1Char->GetYaxis();
-	yax3->SetTitle("CB Crystal Number");
+
+	GBakerCalibHist_CB_IM_2Neut_1Char->GetXaxis()->SetTitle("Invariant Mass (MeV)");
+	GBakerCalibHist_CB_IM_2Neut_1Char->GetYaxis()->SetTitle("CB Crystal Number");
 	GBakerCalibHist_CB_IM_2Neut_1Char->SetStats(kFALSE);
+
+    //CB Time Calibration
+
+    GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+    GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
 
 }
 
