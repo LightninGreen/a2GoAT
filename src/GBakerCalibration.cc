@@ -123,6 +123,30 @@ void   GBakerCalibration::DefineHistograms()
 	GBakerCalibHist_CB_IM_2Neut = new TH2F("GBakerCalibHist_CB_IM_2Neut", "GBakerCalib CB Energy IM 2 Neutral", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut_1Char = new TH2F("GBakerCalibHist_CB_IM_2Neut_1Char", "GBakerCalib CB Energy IM 2 Neutral + 1 Charged", 1000, 0, 1000, 720, 0, 720);
 
+	TAxis* xax0 = GBakerCalibHist_CB_IM->GetXaxis();
+	xax0->SetTitle("Invariant Mass (MeV)");
+	TAxis* yax0 = GBakerCalibHist_CB_IM->GetYaxis();
+	yax0->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM->SetStats(kFALSE);
+
+	TAxis* xax1 = GBakerCalibHist_CB_IM_Neut->GetXaxis();
+	xax1->SetTitle("Invariant Mass (MeV)");
+	TAxis* yax1 = GBakerCalibHist_CB_IM_Neut->GetYaxis();
+	yax1->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM_Neut->SetStats(kFALSE);
+
+	TAxis* xax2 = GBakerCalibHist_CB_IM_2Neut->GetXaxis();
+	xax2->SetTitle("Invariant Mass (MeV)");
+	TAxis* yax2 = GBakerCalibHist_CB_IM_2Neut->GetYaxis();
+	yax2->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM_2Neut->SetStats(kFALSE);
+	
+	TAxis* xax3 = GBakerCalibHist_CB_IM_2Neut_1Char->GetXaxis();
+	xax3->SetTitle("Invariant Mass (MeV)");
+	TAxis* yax3 = GBakerCalibHist_CB_IM_2Neut_1Char->GetYaxis();
+	yax3->SetTitle("CB Crystal Number");
+	GBakerCalibHist_CB_IM_2Neut_1Char->SetStats(kFALSE);
+
 }
 
 Bool_t    GBakerCalibration::WriteHistograms()
