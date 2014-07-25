@@ -93,10 +93,13 @@ void	GBakerCalibration::Reconstruct()
 
 	//TAPS Energy Calibration
 	
+	//Loop over hits
 	for(Int_t i = 0; i < GetNParticles(); i++)
 	{
+		//Loop over hits
 		for(Int_t j = 0; j < GetNParticles(); j++)
 		{
+			//Calculate the invariant mass
 			im = (GetVector(i) + GetVector(j)).M();
 			if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
 			{	
@@ -230,4 +233,4 @@ Bool_t    GBakerCalibration::WriteHistograms()
 	gROOT->GetList()->Delete();
 	
 	return kTRUE;
-}                                                                                                          
+}
