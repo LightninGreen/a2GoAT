@@ -24,6 +24,10 @@ private:
 
     TH2* GBakerCalibHist_CB_Time;
     TH2* GBakerCalibHist_CB_Time_Neut;
+    
+    TH2* GBakerCalibHist_TAPS_IM;
+    TH2* GBakerCalibHist_TAPS_IM_Neut;
+    TH2* GBakerCalibHist_TAPS_IM_2Neut;
    	
 protected:
 	    

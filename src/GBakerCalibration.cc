@@ -22,10 +22,10 @@ void	GBakerCalibration::Reconstruct()
 	
 	//CB Energy Calibration
 	
-	//Loop over CB hits
+	//Loop over hits
 	for(Int_t i = 0; i < GetNParticles(); i++)
 	{	
-		//Loop over CB hits
+		//Loop over hits
 		for(Int_t j = i+1; j < GetNParticles(); j++)
 		{
 			//Check that both particles came from Crystal Ball
@@ -65,16 +65,23 @@ void	GBakerCalibration::Reconstruct()
 
 	//CB Time Calibration
 	
+	//Loop over hits
 	for(Int_t i = 0; i < GetNParticles(); i++)
 	{
+		//Get the time
         time_i = GetTime(i);
+        //Loop over hits
         for(Int_t j = 0; j < GetNParticles(); j++)
         {
+			//Get the time
             time_j = GetTime(j);
+            //Ensure both hits are from CB
             if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
             {
+				//Fill histogram
 				GBakerCalibHist_CB_Time->Fill(time_i - time_j, GetCentralCrys(i));
 				GBakerCalibHist_CB_Time->Fill(time_j - time_i, GetCentralCrys(j));
+				//Fill histogram for only two neutral hits
 				if(charge[i] == 0 && charge[j] == 0)
 				{
 					GBakerCalibHist_CB_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
@@ -82,6 +89,40 @@ void	GBakerCalibration::Reconstruct()
 				}
 			}
         }
+	}
+
+	//TAPS Energy Calibration
+	
+	for(Int_t i = 0; i < GetNParticles(); i++)
+	{
+		for(Int_t j = 0; j < GetNParticles(); j++)
+		{
+			im = (GetVector(i) + GetVector(j)).M();
+			if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
+			{	
+				GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(j));
+				if(charge[i] == 0 && charge[j] == 0)
+				{
+					GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(j));
+					if(nNeutral == 2)
+					{
+						GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(j));
+					}
+				}
+			}
+			else if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
+			{
+				GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(i));
+				if(charge[i] == 0 && charge[j] == 0)
+				{
+					GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(i));
+					if(nNeutral == 2)
+					{
+						GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(i));
+					}
+				}
+			}
+		}
 	}
 
 	EventCleanup();
@@ -176,6 +217,12 @@ void   GBakerCalibration::DefineHistograms()
 
     GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
     GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+
+	//TAPS Energy Calibration
+	
+	GBakerCalibHist_TAPS_IM = new TH2F("GBakerCalibHist_TAPS_IM", "GBakerCalib TAPS Energy IM", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_IM_Neut = new TH2F("GBakerCalibHist_TAPS_IM_Neut", "GBakerCalib TAPS Energy IM Neutral", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_IM_2Neut = new TH2F("GBakerCalibHist_TAPS_IM_2Neut", "GBakerCalib TAPS Energy IM 2 Neutral", 1000, 0, 1000, 720, 0, 720);
 
 }
 
