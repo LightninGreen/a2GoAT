@@ -8,6 +8,11 @@ class	GBakerCalibration : public GDataChecks
 {
 private:
 
+	Int_t CB_Energy_Calib;
+	Int_t CB_Time_Calib;
+	Int_t TAPS_Energy_Calib;
+	Int_t TAPS_Time_Calib;
+
 	Double_t im;
 	
 	Double_t time_i;
@@ -28,6 +33,9 @@ private:
     TH2* GBakerCalibHist_TAPS_IM;
     TH2* GBakerCalibHist_TAPS_IM_Neut;
     TH2* GBakerCalibHist_TAPS_IM_2Neut;
+    
+    TH2* GBakerCalibHist_TAPS_Time;
+    TH2* GBakerCalibHist_TAPS_Time_Neut;
    	
 protected:
 	    

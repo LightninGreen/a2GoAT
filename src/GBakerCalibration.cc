@@ -21,107 +21,143 @@ void	GBakerCalibration::Reconstruct()
 	EventStartup();
 	
 	//CB Energy Calibration
-	
-	//Loop over hits
-	for(Int_t i = 0; i < GetNParticles(); i++)
-	{	
+	if(CB_Energy_Calib == 1)
+	{
 		//Loop over hits
-		for(Int_t j = i+1; j < GetNParticles(); j++)
-		{
-			//Check that both particles came from Crystal Ball
-			if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
+		for(Int_t i = 0; i < GetNParticles(); i++)
+		{	
+			//Loop over hits
+			for(Int_t j = i+1; j < GetNParticles(); j++)
 			{
-				//Calculate invariant mass from 4-vector
-				im = (GetVector(i) + GetVector(j)).M();	
+				//Check that both particles came from Crystal Ball
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
+				{
+					//Calculate invariant mass from 4-vector
+					im = (GetVector(i) + GetVector(j)).M();	
+						
+					//Fill histogram
+					GBakerCalibHist_CB_IM->Fill(im, GetCentralCrys(i));
+					GBakerCalibHist_CB_IM->Fill(im, GetCentralCrys(j));
 					
-				//Fill histogram
-				GBakerCalibHist_CB_IM->Fill(im, GetCentralCrys(i));
-				GBakerCalibHist_CB_IM->Fill(im, GetCentralCrys(j));
-				
-				//Fill histogram for neutral hits
-				if(charge[i] == 0 && charge[j] == 0)
-				{
-					GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(i));
-					GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(j));
+					//Fill histogram for neutral hits
+					if(charge[i] == 0 && charge[j] == 0)
+					{
+						GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(i));
+						GBakerCalibHist_CB_IM_Neut->Fill(im, GetCentralCrys(j));
+					}
+					
+					//Fill histogram for 2 neutral hits
+					if(GetNParticles() == 2 && charge[i] == 0 && charge[j] == 0)
+					{
+						GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(i));
+						GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(j));
+					
+					}
+					
+					//Fill histogram for 2 neutral hits and 1 charged hit
+					if(GetNParticles() == 3 && nCharged == 1 && nNeutral ==2 && charge[i] == 0 && charge[j] == 0)
+					{
+						GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(i));
+						GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(j));
+					}
 				}
-				
-				//Fill histogram for 2 neutral hits
-				if(GetNParticles() == 2 && charge[i] == 0 && charge[j] == 0)
-				{
-					GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(i));
-					GBakerCalibHist_CB_IM_2Neut->Fill(im, GetCentralCrys(j));
-				
-				}
-				
-				//Fill histogram for 2 neutral hits and 1 charged hit
-				if(GetNParticles() == 3 && nCharged == 1 && nNeutral ==2 && charge[i] == 0 && charge[j] == 0)
-				{
-					GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(i));
-					GBakerCalibHist_CB_IM_2Neut_1Char->Fill(im, GetCentralCrys(j));
-				}
-			}
-		}	
+			}	
+		}
 	}
 
 	//CB Time Calibration
-	
-	//Loop over hits
-	for(Int_t i = 0; i < GetNParticles(); i++)
-	{
-		//Get the time
-        time_i = GetTime(i);
-        //Loop over hits
-        for(Int_t j = 0; j < GetNParticles(); j++)
-        {
-			//Get the time
-            time_j = GetTime(j);
-            //Ensure both hits are from CB
-            if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
-            {
-				//Fill histogram
-				GBakerCalibHist_CB_Time->Fill(time_i - time_j, GetCentralCrys(i));
-				GBakerCalibHist_CB_Time->Fill(time_j - time_i, GetCentralCrys(j));
-				//Fill histogram for only two neutral hits
-				if(charge[i] == 0 && charge[j] == 0)
-				{
-					GBakerCalibHist_CB_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
-					GBakerCalibHist_CB_Time_Neut->Fill(time_j - time_i, GetCentralCrys(j));
-				}
-			}
-        }
-	}
-
-	//TAPS Energy Calibration
-	
-	//Loop over hits
-	for(Int_t i = 0; i < GetNParticles(); i++)
+	if(CB_Time_Calib == 1)
 	{
 		//Loop over hits
-		for(Int_t j = 0; j < GetNParticles(); j++)
+		for(Int_t i = 0; i < GetNParticles(); i++)
 		{
-			//Calculate the invariant mass
-			im = (GetVector(i) + GetVector(j)).M();
-			if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
-			{	
-				GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(j));
-				if(charge[i] == 0 && charge[j] == 0)
+			//Get the time
+			time_i = GetTime(i);
+			//Loop over hits
+			for(Int_t j = 0; j < GetNParticles(); j++)
+			{
+				//Get the time
+				time_j = GetTime(j);
+				//Ensure both hits are from CB
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB)
 				{
-					GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(j));
-					if(nNeutral == 2)
+					//Fill histogram
+					GBakerCalibHist_CB_Time->Fill(time_i - time_j, GetCentralCrys(i));
+					GBakerCalibHist_CB_Time->Fill(time_j - time_i, GetCentralCrys(j));
+					//Fill histogram for only two neutral hits
+					if(charge[i] == 0 && charge[j] == 0)
 					{
-						GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(j));
+						GBakerCalibHist_CB_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
+						GBakerCalibHist_CB_Time_Neut->Fill(time_j - time_i, GetCentralCrys(j));
 					}
 				}
 			}
-			else if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
+		}
+	}
+
+	//TAPS Energy Calibration
+	if(TAPS_Energy_Calib == 1)
+	{
+		//Loop over hits
+		for(Int_t i = 0; i < GetNParticles(); i++)
+		{
+			//Loop over hits
+			for(Int_t j = 0; j < GetNParticles(); j++)
 			{
-				GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(i));
-				if(charge[i] == 0 && charge[j] == 0)
-				{
-					GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(i));
-					if(nNeutral == 2)
+				//Calculate the invariant mass
+				im = (GetVector(i) + GetVector(j)).M();
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
+				{	
+					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(j));
+					if(charge[i] == 0 && charge[j] == 0)
 					{
-						GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(i));
+						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(j));
+						if(nNeutral == 2)
+						{
+							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(j));
+						}
+					}
+				}
+				else if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
+				{
+					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(i));
+					if(charge[i] == 0 && charge[j] == 0)
+					{
+						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(i));
+						if(nNeutral == 2)
+						{
+							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(i));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//TAPS Time Calibration
+	if(TAPS_Time_Calib == 1)
+	{
+		//Loop over hits
+		for(Int_t i = 0; i < GetNParticles(); i++)
+		{
+			//Get the time
+			time_i = GetTime(i);
+			//Loop over hits
+			for(Int_t j = 0; j < GetNParticles(); j++)
+			{
+				//Get the time
+				time_j = GetTime(j);
+				//Ensure both hits are from TAPS
+				if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppTAPS)
+				{
+					//Fill histogram
+					GBakerCalibHist_TAPS_Time->Fill(time_i - time_j, GetCentralCrys(i));
+					GBakerCalibHist_TAPS_Time->Fill(time_j - time_i, GetCentralCrys(j));
+					//Fill histogram for only neutral hits
+					if(charge[i] == 0 && charge[j] == 0)
+					{
+						GBakerCalibHist_TAPS_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
+						GBakerCalibHist_TAPS_Time_Neut->Fill(time_j - time_i, GetCentralCrys(j));
 					}
 				}
 			}
@@ -131,6 +167,24 @@ void	GBakerCalibration::Reconstruct()
 	EventCleanup();
 
 }	
+
+void   GBakerCalibration::EventStartup()
+{
+		CB_Energy_Calib = 1;
+		CB_Time_Calib = 1;
+		TAPS_Energy_Calib = 1;
+		TAPS_Time_Calib = 1;
+		
+		LabelCharged();
+		
+}
+	
+void   GBakerCalibration::EventCleanup()
+{
+		
+		delete [] charge;
+		
+}
 
 void   GBakerCalibration::LabelCharged()
 {
@@ -172,20 +226,6 @@ void   GBakerCalibration::LabelCharged()
 	}	
 }
 	
-void   GBakerCalibration::EventStartup()
-{
-		
-		LabelCharged();
-		
-}
-	
-void   GBakerCalibration::EventCleanup()
-{
-		
-		delete [] charge;
-		
-}
-	
 void   GBakerCalibration::DefineHistograms()
 {
 
@@ -219,7 +259,13 @@ void   GBakerCalibration::DefineHistograms()
 	GBakerCalibHist_TAPS_IM_Neut->SetStats(kFALSE);
 	GBakerCalibHist_TAPS_IM_2Neut = new TH2F("GBakerCalibHist_TAPS_IM_2Neut", "GBakerCalib TAPS Energy IM 2 Neutral", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_IM_2Neut->SetStats(kFALSE);
+	
+	//TAPS Time Calibration
 
+	GBakerCalibHist_TAPS_Time = new TH2F("GBakerCalibHist_TAPS_Time", "GBakerCalib TAPS Time", 10000, -1000, 1000, 720, 0, 720);
+    GBakerCalibHist_TAPS_Time->SetStats(kFALSE);
+    GBakerCalibHist_TAPS_Time_Neut = new TH2F("GBakerCalibHist_TAPS_Time_Neut", "GBakerCalib TAPS Time Neutral", 10000, -1000, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_Time_Neut->SetStats(kFALSE);
 }
 
 Bool_t    GBakerCalibration::WriteHistograms()
