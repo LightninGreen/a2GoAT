@@ -21,6 +21,7 @@ void	GBakerCalibration::Reconstruct()
 	EventStartup();
 	
 	//------------------CB Energy Calibration------------------
+	
 	if(CB_Energy_Calib == 1)
 	{
 		//Loop over hits
@@ -66,6 +67,7 @@ void	GBakerCalibration::Reconstruct()
 	}
 
 	//------------------GB Quadratic Energy Correction------------------
+	
 	if(CB_Quad_Energy_Calib == 1)
 	{
 		//Loop over hits
@@ -84,13 +86,13 @@ void	GBakerCalibration::Reconstruct()
 					GBakerCalibHist_CB_Quad_IM->Fill(im, GetCentralCrys(i));
 					GBakerCalibHist_CB_Quad_IM->Fill(im, GetCentralCrys(j));
 					//Fill pi0 average energy histogram
-					if(meanE > 100.0 && meanE < 150.0)
+					if(im > 100.0 && im < 150.0)
 					{
 						GBakerCalibHist_CB_Quad_Pi0_Mean_E->Fill(meanE, GetCentralCrys(i));
 						GBakerCalibHist_CB_Quad_Pi0_Mean_E->Fill(meanE, GetCentralCrys(j));
 					}
 					//Fill eta average energy histogram
-					if(meanE > 480.0 && meanE < 575.0)
+					if(im > 480.0 && im < 575.0)
 					{
 						GBakerCalibHist_CB_Quad_Eta_Mean_E->Fill(meanE, GetCentralCrys(i));
 						GBakerCalibHist_CB_Quad_Eta_Mean_E->Fill(meanE, GetCentralCrys(j));
@@ -101,6 +103,7 @@ void	GBakerCalibration::Reconstruct()
 	}
 
 	//------------------CB Time Calibration------------------
+	
 	if(CB_Time_Calib == 1)
 	{
 		//Loop over hits
@@ -131,6 +134,7 @@ void	GBakerCalibration::Reconstruct()
 	}
 
 	//------------------TAPS Energy Calibration------------------
+	
 	if(TAPS_Energy_Calib == 1)
 	{
 		//Loop over hits
@@ -138,7 +142,7 @@ void	GBakerCalibration::Reconstruct()
 		{
 			//Loop over hits
 			for(Int_t j = 0; j < GetNParticles(); j++)
-			{
+			{	
 				//Calculate the invariant mass
 				im = (GetVector(i) + GetVector(j)).M();
 				//Ensure 1 hit from both CB and TAPS
@@ -177,7 +181,48 @@ void	GBakerCalibration::Reconstruct()
 		}
 	}
 
+	//------------------TAPS Quadratic Energy Calibration------------------
+
+	if(TAPS_Quad_Energy_Calib == 1)
+	{
+		for(Int_t i = 0; i < GetNParticles(); i++)
+		{
+			for(Int_t j = 0; j < GetNParticles(); j++)
+			{
+				goodEvent = 0;
+				if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB && charge[i] == 0 && charge[j] == 0)
+				{
+					indexTAPS = i;
+					indexCB = j;
+					goodEvent = 1; 
+				}
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS && charge[i] == 0 && charge[j] == 0)
+				{
+					indexTAPS = j;
+					indexCB = i;
+					goodEvent = 1;
+				}
+				if(goodEvent == 1)
+				{
+					im = (GetVector(indexTAPS) + GetVector(indexCB)).M();
+					meanE = 0.5*(GetVector(indexTAPS).E() + GetVector(indexCB).E());
+					theta = GetTheta(indexTAPS);
+					GBakerCalibHist_TAPS_Quad_IM->Fill(im, theta);
+					if(im > 100.0 && im < 150.0)
+					{
+						GBakerCalibHist_TAPS_Quad_Pi0_Mean_E->Fill(meanE, theta);
+					}
+					if(im > 480.0 && im < 575.0)
+					{
+						GBakerCalibHist_TAPS_Quad_Eta_Mean_E->Fill(meanE, theta);
+					}
+				}
+			}
+		}
+	}
+
 	//------------------TAPS Time Calibration------------------
+	
 	if(TAPS_Time_Calib == 1)
 	{
 		//Loop over hits
@@ -217,6 +262,7 @@ void   GBakerCalibration::EventStartup()
 		CB_Quad_Energy_Calib = 1;
 		CB_Time_Calib = 1;
 		TAPS_Energy_Calib = 1;
+		TAPS_Quad_Energy_Calib = 1;
 		TAPS_Time_Calib = 1;
 		
 		LabelCharged();
@@ -290,11 +336,11 @@ void   GBakerCalibration::DefineHistograms()
 
 	//CB Quad Energy Calibration
 	
-	GBakerCalibHist_CB_Quad_IM = new TH2F("GBakerCalibHist_CB_Quad_IM", "GBakerCalib CB Quadratic Energy: IM;Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Quad_IM = new TH2F("GBakerCalibHist_CB_Quad_IM", "GBakerCalib CB Quadratic Energy: IM;2#gamma Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Quad_IM->SetStats(kFALSE);
-	GBakerCalibHist_CB_Quad_Pi0_Mean_E = new TH2F("GBakerCalibHist_CB_Quad_Pi0_Mean_E", "GBakerCalib CB Quadratic Energy: Pi0 Mean Energy;Mean Photon Energy of #pi^{0} [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Quad_Pi0_Mean_E = new TH2F("GBakerCalibHist_CB_Quad_Pi0_Mean_E", "GBakerCalib CB Quadratic Energy: #pi^{0} Mean Energy;Mean Photon Energy of #pi^{0} [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Quad_Pi0_Mean_E->SetStats(kFALSE);
-	GBakerCalibHist_CB_Quad_Eta_Mean_E = new TH2F("GBakerCalibHist_CB_Quad_Eta_Mean_E", "GBakerCalib CB Quadratic Energy: Eta Mean Energy;Mean Photon Energy of #eta [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Quad_Eta_Mean_E = new TH2F("GBakerCalibHist_CB_Quad_Eta_Mean_E", "GBakerCalib CB Quadratic Energy: #eta Mean Energy;Mean Photon Energy of #eta [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Quad_Eta_Mean_E->SetStats(kFALSE);
 
 	//CB Time Calibration
@@ -312,6 +358,15 @@ void   GBakerCalibration::DefineHistograms()
 	GBakerCalibHist_TAPS_IM_Neut->SetStats(kFALSE);
 	GBakerCalibHist_TAPS_IM_2Neut = new TH2F("GBakerCalibHist_TAPS_IM_2Neut", "GBakerCalib TAPS Energy: IM 2 Neutral;Invariant Mass [MeV];TAPS Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_IM_2Neut->SetStats(kFALSE);
+	
+	//TAPS Quad Energy Calibration
+	
+	GBakerCalibHist_TAPS_Quad_IM = new TH2F("GBakerCalibHist_TAPS_Quad_IM", "GBakerCalib TAPS Quadratic Energy: IM;2#gamma Invariant Mass [MeV];TAPS Cluster #theta Angle [deg]", 1000, 0, 1000, 30, 0, 30);
+	GBakerCalibHist_TAPS_Quad_IM->SetStats(kFALSE);
+	GBakerCalibHist_TAPS_Quad_Pi0_Mean_E = new TH2F("GBakerCalibHist_TAPS_Quad_Pi0_Mean_E", "GBakerCalib TAPS Quadratic Energy: #pi^{0} Mean Energy;Mean Photon Energy of #pi^{0} [MeV];TAPS Cluster #theta Angle [deg]", 1000, 0, 1000, 30, 0, 30);
+	GBakerCalibHist_TAPS_Quad_Pi0_Mean_E->SetStats(kFALSE);
+	GBakerCalibHist_TAPS_Quad_Eta_Mean_E = new TH2F("GBakerCalibHist_TAPS_Quad_Eta_Mean_E", "GBakerCalib TAPS Quadratic Energy: #eta Mean Energy;Mean Photon Energy of #eta [MeV];TAPS Cluster #theta Angle [deg]", 1000, 0, 1000, 30, 0, 30);
+	GBakerCalibHist_TAPS_Quad_Eta_Mean_E->SetStats(kFALSE);
 	
 	//TAPS Time Calibration
 

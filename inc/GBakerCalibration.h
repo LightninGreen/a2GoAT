@@ -12,12 +12,18 @@ private:
 	Int_t CB_Quad_Energy_Calib;
 	Int_t CB_Time_Calib;
 	Int_t TAPS_Energy_Calib;
+	Int_t TAPS_Quad_Energy_Calib;
 	Int_t TAPS_Time_Calib;
 
 	Double_t im;
 	Double_t meanE;
+	Double_t theta;
 	Double_t time_i;
 	Double_t time_j;
+	
+	Int_t goodEvent;
+	Int_t indexTAPS;
+	Int_t indexCB;
 	
 	Int_t* charge;
 	Int_t nCharged;
@@ -38,6 +44,10 @@ private:
 	TH2* GBakerCalibHist_TAPS_IM;
 	TH2* GBakerCalibHist_TAPS_IM_Neut;
 	TH2* GBakerCalibHist_TAPS_IM_2Neut;
+	
+	TH2* GBakerCalibHist_TAPS_Quad_IM;
+	TH2* GBakerCalibHist_TAPS_Quad_Pi0_Mean_E;
+	TH2* GBakerCalibHist_TAPS_Quad_Eta_Mean_E;
     
  	TH2* GBakerCalibHist_TAPS_Time;
  	TH2* GBakerCalibHist_TAPS_Time_Neut;
