@@ -244,11 +244,11 @@ void   GBakerCalibration::DefineHistograms()
 	GBakerCalibHist_CB_IM_2Neut_1Char = new TH2F("GBakerCalibHist_CB_IM_2Neut_1Char", "GBakerCalib CB Energy IM 2 Neutral + 1 Charged;Energy [MeV];CB Index", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut_1Char->SetStats(kFALSE);
 
-    //CB Time Calibration
-
-    GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
-    GBakerCalibHist_CB_Time->SetStats(kFALSE);
-    GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+	//CB Time Calibration
+		
+	GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Time->SetStats(kFALSE);
+	GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Time_Neut->SetStats(kFALSE);
 
 	//TAPS Energy Calibration
@@ -263,8 +263,8 @@ void   GBakerCalibration::DefineHistograms()
 	//TAPS Time Calibration
 
 	GBakerCalibHist_TAPS_Time = new TH2F("GBakerCalibHist_TAPS_Time", "GBakerCalib TAPS Time", 10000, -1000, 1000, 720, 0, 720);
-    GBakerCalibHist_TAPS_Time->SetStats(kFALSE);
-    GBakerCalibHist_TAPS_Time_Neut = new TH2F("GBakerCalibHist_TAPS_Time_Neut", "GBakerCalib TAPS Time Neutral", 10000, -1000, 1000, 720, 0, 720);
+    	GBakerCalibHist_TAPS_Time->SetStats(kFALSE);
+    	GBakerCalibHist_TAPS_Time_Neut = new TH2F("GBakerCalibHist_TAPS_Time_Neut", "GBakerCalib TAPS Time Neutral", 10000, -1000, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_Time_Neut->SetStats(kFALSE);
 }
 
@@ -273,7 +273,11 @@ Bool_t    GBakerCalibration::WriteHistograms()
 	
 	cout << "Writing GBakerCalibration histograms." << endl;
 	
-	if(!GoATFile) return kFALSE;
+	if(!GoATFile)
+	{
+		cout << "Writing GBakerCalibration histograms failed. Reason: No GoATFile." << endl;
+		return kFALSE;
+	}
 	GoATFile->cd();
 	gROOT->GetList()->Write();
 	gROOT->GetList()->Delete();
