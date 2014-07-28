@@ -20,7 +20,7 @@ void	GBakerCalibration::Reconstruct()
 	
 	EventStartup();
 	
-	//CB Energy Calibration
+	//------------------CB Energy Calibration------------------
 	if(CB_Energy_Calib == 1)
 	{
 		//Loop over hits
@@ -65,7 +65,7 @@ void	GBakerCalibration::Reconstruct()
 		}
 	}
 
-	//CB Time Calibration
+	//------------------CB Time Calibration------------------
 	if(CB_Time_Calib == 1)
 	{
 		//Loop over hits
@@ -95,7 +95,7 @@ void	GBakerCalibration::Reconstruct()
 		}
 	}
 
-	//TAPS Energy Calibration
+	//------------------TAPS Energy Calibration------------------
 	if(TAPS_Energy_Calib == 1)
 	{
 		//Loop over hits
@@ -106,24 +106,32 @@ void	GBakerCalibration::Reconstruct()
 			{
 				//Calculate the invariant mass
 				im = (GetVector(i) + GetVector(j)).M();
+				//Ensure 1 hit from both CB and TAPS
 				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
 				{	
+					//Fill histogram
 					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(j));
+					//Fill only neutral hits
 					if(charge[i] == 0 && charge[j] == 0)
 					{
 						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(j));
+						//Fill only 2 neutral hit events
 						if(nNeutral == 2)
 						{
 							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(j));
 						}
 					}
 				}
+				//Ensure 1 hit from both CB and TAPS
 				else if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
 				{
+					//Fill histogram
 					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(i));
+					//Fill only neutral hits
 					if(charge[i] == 0 && charge[j] == 0)
 					{
 						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(i));
+						//Fill only 2 neutral hit events
 						if(nNeutral == 2)
 						{
 							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(i));
@@ -134,7 +142,7 @@ void	GBakerCalibration::Reconstruct()
 		}
 	}
 
-	//TAPS Time Calibration
+	//------------------TAPS Time Calibration------------------
 	if(TAPS_Time_Calib == 1)
 	{
 		//Loop over hits
@@ -235,36 +243,36 @@ void   GBakerCalibration::DefineHistograms()
 
 	//CB Energy Calibration
 
-	GBakerCalibHist_CB_IM = new TH2F("GBakerCalibHist_CB_IM", "GBakerCalib CB Energy IM;Energy [MeV];CB Index", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_IM = new TH2F("GBakerCalibHist_CB_IM", "GBakerCalib CB Energy IM;Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM->SetStats(kFALSE);
-	GBakerCalibHist_CB_IM_Neut = new TH2F("GBakerCalibHist_CB_IM_Neut", "GBakerCalib CB Energy IM Neutral;Energy [MeV];CB Index", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_IM_Neut = new TH2F("GBakerCalibHist_CB_IM_Neut", "GBakerCalib CB Energy IM Neutral;Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_Neut->SetStats(kFALSE);
-	GBakerCalibHist_CB_IM_2Neut = new TH2F("GBakerCalibHist_CB_IM_2Neut", "GBakerCalib CB Energy IM 2 Neutral;Energy [MeV];CB Index", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_IM_2Neut = new TH2F("GBakerCalibHist_CB_IM_2Neut", "GBakerCalib CB Energy IM 2 Neutral;Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut->SetStats(kFALSE);
-	GBakerCalibHist_CB_IM_2Neut_1Char = new TH2F("GBakerCalibHist_CB_IM_2Neut_1Char", "GBakerCalib CB Energy IM 2 Neutral + 1 Charged;Energy [MeV];CB Index", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_IM_2Neut_1Char = new TH2F("GBakerCalibHist_CB_IM_2Neut_1Char", "GBakerCalib CB Energy IM 2 Neutral + 1 Charged;Invariant Mass [MeV];CB Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_IM_2Neut_1Char->SetStats(kFALSE);
 
 	//CB Time Calibration
 		
-	GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Time = new TH2F("GBakerCalibHist_CB_Time", "GBakerCalib CB Time;CB Cluster Time [ns];CB Element #", 10000, -1000, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Time->SetStats(kFALSE);
-	GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB cluster time [ns];CB element", 10000, -1000, 1000, 720, 0, 720);
+	GBakerCalibHist_CB_Time_Neut = new TH2F("GBakerCalibHist_CB_Time_Neut", "GBakerCalib CB Time Neutral;CB Cluster Time [ns];CB Element #", 10000, -1000, 1000, 720, 0, 720);
 	GBakerCalibHist_CB_Time_Neut->SetStats(kFALSE);
 
 	//TAPS Energy Calibration
 	
-	GBakerCalibHist_TAPS_IM = new TH2F("GBakerCalibHist_TAPS_IM", "GBakerCalib TAPS Energy IM", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_IM = new TH2F("GBakerCalibHist_TAPS_IM", "GBakerCalib TAPS Energy IM;Invariant Mass [MeV];TAPS Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_IM->SetStats(kFALSE);
-	GBakerCalibHist_TAPS_IM_Neut = new TH2F("GBakerCalibHist_TAPS_IM_Neut", "GBakerCalib TAPS Energy IM Neutral", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_IM_Neut = new TH2F("GBakerCalibHist_TAPS_IM_Neut", "GBakerCalib TAPS Energy IM Neutral;Invariant Mass [MeV];TAPS Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_IM_Neut->SetStats(kFALSE);
-	GBakerCalibHist_TAPS_IM_2Neut = new TH2F("GBakerCalibHist_TAPS_IM_2Neut", "GBakerCalib TAPS Energy IM 2 Neutral", 1000, 0, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_IM_2Neut = new TH2F("GBakerCalibHist_TAPS_IM_2Neut", "GBakerCalib TAPS Energy IM 2 Neutral;Invariant Mass [MeV];TAPS Element #", 1000, 0, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_IM_2Neut->SetStats(kFALSE);
 	
 	//TAPS Time Calibration
 
-	GBakerCalibHist_TAPS_Time = new TH2F("GBakerCalibHist_TAPS_Time", "GBakerCalib TAPS Time", 10000, -1000, 1000, 720, 0, 720);
-    	GBakerCalibHist_TAPS_Time->SetStats(kFALSE);
-    	GBakerCalibHist_TAPS_Time_Neut = new TH2F("GBakerCalibHist_TAPS_Time_Neut", "GBakerCalib TAPS Time Neutral", 10000, -1000, 1000, 720, 0, 720);
+	GBakerCalibHist_TAPS_Time = new TH2F("GBakerCalibHist_TAPS_Time", "GBakerCalib TAPS Time;TAPS Cluster Time [ns];TAPS Element #", 10000, -1000, 1000, 720, 0, 720);
+    GBakerCalibHist_TAPS_Time->SetStats(kFALSE);
+    GBakerCalibHist_TAPS_Time_Neut = new TH2F("GBakerCalibHist_TAPS_Time_Neut", "GBakerCalib TAPS Time Neutral;TAPS Cluster Time [ns];TAPS Element #", 10000, -1000, 1000, 720, 0, 720);
 	GBakerCalibHist_TAPS_Time_Neut->SetStats(kFALSE);
 }
 
