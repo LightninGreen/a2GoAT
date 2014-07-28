@@ -9,12 +9,13 @@ class	GBakerCalibration : public GDataChecks
 private:
 
 	Int_t CB_Energy_Calib;
+	Int_t CB_Quad_Energy_Calib;
 	Int_t CB_Time_Calib;
 	Int_t TAPS_Energy_Calib;
 	Int_t TAPS_Time_Calib;
 
 	Double_t im;
-	
+	Double_t meanE;
 	Double_t time_i;
 	Double_t time_j;
 	
@@ -26,6 +27,10 @@ private:
 	TH2* GBakerCalibHist_CB_IM_Neut;
 	TH2* GBakerCalibHist_CB_IM_2Neut;
 	TH2* GBakerCalibHist_CB_IM_2Neut_1Char;
+
+	TH2* GBakerCalibHist_CB_Quad_IM;
+	TH2* GBakerCalibHist_CB_Quad_Pi0_Mean_E;
+	TH2* GBakerCalibHist_CB_Quad_Eta_Mean_E;
 
 	TH2* GBakerCalibHist_CB_Time;
 	TH2* GBakerCalibHist_CB_Time_Neut;
