@@ -77,7 +77,7 @@ void	GBakerCalibration::Reconstruct()
 			for(Int_t j = 0; j < GetNParticles(); j++)
 			{
 				//Ensure 2 neutral CB hits
-				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB && nNeutral == 2 && nCharged == 0)
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB && charge[i] == 0 && charge[j] == 0 && GetNParticles() == 2)
 				{
 					//Calculate invariant mass and average energy
 					im = (GetVector(i) + GetVector(j)).M();
