@@ -17,7 +17,6 @@ private:
 
 	Double_t im;
 	Double_t meanE;
-	Double_t theta;
 	Double_t time_i;
 	Double_t time_j;
 	

@@ -122,7 +122,7 @@ void	GBakerCalibration::Reconstruct()
 					//Fill histogram
 					GBakerCalibHist_CB_Time->Fill(time_i - time_j, GetCentralCrys(i));
 					GBakerCalibHist_CB_Time->Fill(time_j - time_i, GetCentralCrys(j));
-					//Fill histogram for only two neutral hits
+					//Fill histogram for only neutral hits
 					if(charge[i] == 0 && charge[j] == 0)
 					{
 						GBakerCalibHist_CB_Time_Neut->Fill(time_i - time_j, GetCentralCrys(i));
@@ -143,37 +143,34 @@ void	GBakerCalibration::Reconstruct()
 			//Loop over hits
 			for(Int_t j = 0; j < GetNParticles(); j++)
 			{	
-				//Calculate the invariant mass
-				im = (GetVector(i) + GetVector(j)).M();
-				//Ensure 1 hit from both CB and TAPS
-				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
-				{	
-					//Fill histogram
-					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(j));
-					//Fill only neutral hits
-					if(charge[i] == 0 && charge[j] == 0)
-					{
-						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(j));
-						//Fill only 2 neutral hit events
-						if(nNeutral == 2)
-						{
-							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(j));
-						}
-					}
-				}
-				//Ensure 1 hit from both CB and TAPS
-				else if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
+				//Ensure 1 hit from TAPS and 1 hit from CB
+				goodEvent = 0;
+				if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB)
 				{
+					indexTAPS = i;
+					indexCB = j;
+					goodEvent = 1; 
+				}
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppTAPS)
+				{
+					indexTAPS = j;
+					indexCB = i;
+					goodEvent = 1;
+				}
+				if(goodEvent == 1)
+				{
+					//Calculate the invariant mass
+					im = (GetVector(indexTAPS) + GetVector(indexCB)).M();
 					//Fill histogram
-					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(i));
+					GBakerCalibHist_TAPS_IM->Fill(im, GetCentralCrys(indexTAPS));
 					//Fill only neutral hits
-					if(charge[i] == 0 && charge[j] == 0)
+					if(charge[indexTAPS] == 0 && charge[indexCB] == 0)
 					{
-						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(i));
+						GBakerCalibHist_TAPS_IM_Neut->Fill(im, GetCentralCrys(indexTAPS));
 						//Fill only 2 neutral hit events
-						if(nNeutral == 2)
+						if(GetNParticles() == 2)
 						{
-							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(i));
+							GBakerCalibHist_TAPS_IM_2Neut->Fill(im, GetCentralCrys(indexTAPS));
 						}
 					}
 				}
@@ -185,10 +182,13 @@ void	GBakerCalibration::Reconstruct()
 
 	if(TAPS_Quad_Energy_Calib == 1)
 	{
+		//Loop over hits
 		for(Int_t i = 0; i < GetNParticles(); i++)
 		{
+			//Loop over hits
 			for(Int_t j = 0; j < GetNParticles(); j++)
 			{
+				//Ensure 1 hit from TAPS and 1 hit from CB
 				goodEvent = 0;
 				if(GetApparatus(i) == EAppTAPS && GetApparatus(j) == EAppCB && charge[i] == 0 && charge[j] == 0)
 				{
@@ -204,17 +204,21 @@ void	GBakerCalibration::Reconstruct()
 				}
 				if(goodEvent == 1)
 				{
+					//Calculate invariant mass
 					im = (GetVector(indexTAPS) + GetVector(indexCB)).M();
+					//Calculate mean photon energy
 					meanE = 0.5*(GetVector(indexTAPS).E() + GetVector(indexCB).E());
-					theta = GetTheta(indexTAPS);
-					GBakerCalibHist_TAPS_Quad_IM->Fill(im, theta);
+					//Fill invariant mass histogram
+					GBakerCalibHist_TAPS_Quad_IM->Fill(im, GetTheta(indexTAPS));
+					//Fill pi0 average energy histogram
 					if(im > 100.0 && im < 150.0)
 					{
-						GBakerCalibHist_TAPS_Quad_Pi0_Mean_E->Fill(meanE, theta);
+						GBakerCalibHist_TAPS_Quad_Pi0_Mean_E->Fill(meanE, GetTheta(indexTAPS));
 					}
+					//Fill eta average energy histogram
 					if(im > 480.0 && im < 575.0)
 					{
-						GBakerCalibHist_TAPS_Quad_Eta_Mean_E->Fill(meanE, theta);
+						GBakerCalibHist_TAPS_Quad_Eta_Mean_E->Fill(meanE, GetTheta(indexTAPS));
 					}
 				}
 			}
