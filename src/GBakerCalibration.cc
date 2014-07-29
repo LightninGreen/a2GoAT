@@ -20,6 +20,35 @@ void	GBakerCalibration::Reconstruct()
 	
 	EventStartup();
 	
+	//------------------Target Position------------------ (Work in progess)
+	
+	if(Target_Position == 1)
+	{
+		//Loop over hits
+		for(Int_t i = 0; i < GetNParticles(); i++)
+		{
+			//Loop over hits
+			for(Int_t j = 0; j < GetNParticles(); j++)
+			{
+				//Ensure 2 neutral hits in the CB
+				if(GetApparatus(i) == EAppCB && GetApparatus(j) == EAppCB && charge[i] == 0 && charge[j] == 0 && GetNParticles() == 2)
+				{
+					theta = GetTheta(i);
+					//Apply theta cut
+					if(theta > 70.0 && theta < 110.0)
+					{
+						//Loop over target positions
+						for(Int_t n = 1; n <= GBakerCalibHist_Target_Pos->GetNbinsY(); n++)
+						{
+							//Get target position
+							GBakerCalibHist_Target_Pos->GetYaxis()->GetBinCenter(n);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	//------------------CB Energy Calibration------------------
 	
 	if(CB_Energy_Calib == 1)
@@ -262,6 +291,7 @@ void	GBakerCalibration::Reconstruct()
 
 void   GBakerCalibration::EventStartup()
 {
+		Target Position = 0;
 		CB_Energy_Calib = 1;
 		CB_Quad_Energy_Calib = 1;
 		CB_Time_Calib = 1;
@@ -326,6 +356,10 @@ void   GBakerCalibration::DefineHistograms()
 	cout << "Defining GBakerCalibration histograms." << endl;
 
 	gROOT->cd();
+
+	//Target Position
+	
+	GBakerCalibHist_Target_Pos = new TH2F("GBakerCalibHist_Target_Pos", "GBakerCalib Target Position;2#gamma Invariant Mass [MeV];Target Position [cm]", 1000, 0, 1000, 200, -10, 10);
 
 	//CB Energy Calibration
 

@@ -8,6 +8,7 @@ class	GBakerCalibration : public GDataChecks
 {
 private:
 
+	Int_t Target_Position;
 	Int_t CB_Energy_Calib;
 	Int_t CB_Quad_Energy_Calib;
 	Int_t CB_Time_Calib;
@@ -15,8 +16,10 @@ private:
 	Int_t TAPS_Quad_Energy_Calib;
 	Int_t TAPS_Time_Calib;
 
+	Double_t targetPos;
 	Double_t im;
 	Double_t meanE;
+	Double_t theta;
 	Double_t time_i;
 	Double_t time_j;
 	
@@ -27,6 +30,8 @@ private:
 	Int_t* charge;
 	Int_t nCharged;
 	Int_t nNeutral;
+	
+	TH2* GBakerCalibHist_Target_Pos;
 	
 	TH2* GBakerCalibHist_CB_IM;
 	TH2* GBakerCalibHist_CB_IM_Neut;
